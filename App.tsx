@@ -1,7 +1,6 @@
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { GoogleGenAI, Chat } from '@google/genai';
-import { Message, Role } from './types';
+import { Message } from './types';
 import { SYSTEM_INSTRUCTION, INITIAL_GREETING } from './constants';
 import Header from './components/Header';
 import ChatHistory from './components/ChatHistory';
@@ -16,10 +15,14 @@ const App: React.FC = () => {
 
   const initializeChat = useCallback(() => {
     try {
-      if (!process.env.VITE_API_KEY) {
-        throw new Error("VITE_API_KEY environment variable not set.");
+      // ✅ Vite-Style Env Variable (funktioniert auf Vercel)
+      const apiKey = import.meta.env.VITE_API_KEY;
+
+      if (!apiKey) {
+        throw new Error('VITE_API_KEY not set. Please check environment variables.');
       }
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+      const ai = new GoogleGenAI({ apiKey });
       chatRef.current = ai.chats.create({
         model: 'gemini-2.5-flash',
         config: {
@@ -27,12 +30,16 @@ const App: React.FC = () => {
         },
       });
     } catch (error) {
-      console.error("Failed to initialize chat:", error);
+      console.error('Failed to initialize chat:', error);
       setMessages((prevMessages) => [
         ...prevMessages,
         {
           role: 'model',
-          parts: [{ text: 'Error: Could not initialize AI Assistant. Please check the API key and configuration.' }],
+          parts: [
+            {
+              text: 'Error: Could not initialize AI Assistant. Please check the API key and configuration.',
+            },
+          ],
         },
       ]);
     }
@@ -51,7 +58,7 @@ const App: React.FC = () => {
 
     try {
       if (!chatRef.current) {
-        throw new Error("Chat session is not initialized.");
+        throw new Error('Chat session is not initialized.');
       }
 
       const result = await chatRef.current.sendMessage({ message: text });
