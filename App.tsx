@@ -16,8 +16,8 @@ const App: React.FC = () => {
 
   const initializeChat = useCallback(() => {
     try {
-      if (!process.env.API_KEY) {
-        throw new Error("API_KEY environment variable not set.");
+      if (!process.env.VITE_API_KEY) {
+        throw new Error("VITE_API_KEY environment variable not set.");
       }
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       chatRef.current = ai.chats.create({
